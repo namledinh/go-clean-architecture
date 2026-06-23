@@ -1,8 +1,10 @@
-name: Build and Push Docker Image
+name: http_api
 
 on:
   push:
-    branches: [ "main", "master" ] 
+    branches:
+      - main
+      - master
 
 env:
   REGISTRY: ghcr.io
@@ -11,9 +13,10 @@ env:
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
+
     permissions:
       contents: read
-      packages: write 
+      packages: write
 
     steps:
       - name: Checkout repository
@@ -22,32 +25,28 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Log in to the Container Registry
+      - name: Login to GHCR
         uses: docker/login-action@v3
         with:
-          registry: ${{ env.REGISTRY }}
+          registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Extract Docker metadata
+      - name: Extract metadata
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          images: ghcr.io/${{ github.repository }}
           tags: |
             type=ref,event=branch
             type=sha,format=short
-            latest
+            type=raw,value=latest
 
-      - name: Build and push Docker image
+      - name: Build and Push
         uses: docker/build-push-action@v6
         with:
           context: .
-          file: ./Dockerfile
+          file: Dockerfile
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          build-args: |
-            GIT_VERSION=${{ github.sha }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
