@@ -1,7 +1,7 @@
 # ==========================================
 # 1. BUILD STAGE
 # ==========================================
-FROM golang:1.25.0-alpine3.22 AS builder
+FROM golang:1.26-alpine AS builder
 
 WORKDIR /http
 
