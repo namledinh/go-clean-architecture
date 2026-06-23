@@ -1,2 +1,2 @@
 #!/bin/sh
-cd /http/ && ./main
+exec /http/main
